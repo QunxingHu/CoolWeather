@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.ustc.hardy.coolweather.model.City;
+import com.ustc.hardy.coolweather.model.Country;
 import com.ustc.hardy.coolweather.model.Province;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class CoolWeatherDB {
     //获取CoolWeatherDB的实例
     public synchronized static CoolWeatherDB getInstance(Context context){
         if(coolWeatherDB == null)
-            coolWeatherDB = new CoolWeatherDB();
+            coolWeatherDB = new CoolWeatherDB(context);
         return coolWeatherDB;
     }
 
@@ -75,7 +76,64 @@ public class CoolWeatherDB {
     public void saveCity(City city){
         if(city != null){
             ContentValues values = new ContentValues();
-            values.put("city_name",city.getCityName());
+            values.put("city_name", city.getCityName());
+            values.put("city_code", city.getCityCode());
+            values.put("province_id", city.getProvinceId());
+            db.insert("City", null, values);
         }
     }
+
+    //从数据库读取某省下所有的城市信息
+    public List<City> loadCities(int provinceId){
+        List<City> list = new ArrayList<City>();
+        Cursor cursor = db.query("City",null,"province_id = ?", new String[] {String.valueOf(provinceId)}, null,null, null);
+        if(cursor.moveToFirst()){
+            do{
+                City city = new City();
+                city.setId(cursor.getInt(cursor.getColumnIndex("id")));
+                city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+                city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
+                city.setProvinceId(provinceId);
+                list.add(city);
+            } while (cursor.moveToNext());
+        }
+
+        if (cursor != null)
+            cursor.close();
+
+        return list;
+    }
+
+    //将Country实例存储到数据库
+    public void saveCountry(Country country){
+        if(country != null){
+            ContentValues values = new ContentValues();
+            values.put("country_code", country.getCountryCode());
+            values.put("country_name", country.getCountryName());
+            values.put("city_id", country.getCityCode());
+            db.insert("Country", null, values);
+        }
+    }
+
+    //从数据库中读取某城市下所有的县信息
+    public List<Country> loadCountries(int cityId){
+        List<Country> list = new ArrayList<Country>();
+        Cursor cursor = db.query("Country", null,"city_id = ?",new String[]{String.valueOf(cityId)}, null, null, null);
+        if (cursor.moveToFirst()){
+            do {
+                Country country = new Country();
+                country.setId(cursor.getInt(cursor.getColumnIndex("id")));
+                country.setCountryCode(cursor.getString(cursor.getColumnIndex("country_code")));
+                country.setCountryName(cursor.getString(cursor.getColumnIndex("country_name")));
+                country.setCityCode(cityId);
+                list.add(country);
+            } while (cursor.moveToNext());
+        }
+
+        if(cursor != null)
+            cursor.close();
+
+        return list;
+    }
+
 }
