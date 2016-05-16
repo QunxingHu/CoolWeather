@@ -135,5 +135,4 @@ public class CoolWeatherDB {
 
         return list;
     }
-
 }
