@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ustc.hardy.coolweather.R;
+import com.ustc.hardy.coolweather.service.AutoUpdateService;
 import com.ustc.hardy.coolweather.util.HttpUtil;
 import com.ustc.hardy.coolweather.util.Utility;
 
@@ -142,6 +143,10 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         currentDataText.setText(prefs.getString("current_data", ""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
+
+        //启动后台服务
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 
     @Override
